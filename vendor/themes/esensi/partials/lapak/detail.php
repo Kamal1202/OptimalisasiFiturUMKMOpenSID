@@ -303,7 +303,7 @@
 
 <div class="mb-5">
     <a href="<?= site_url('lapak') ?>" class="btn btn-secondary text-xs">
-        <i class="fas fa-arrow-left mr-1"></i> Kembali ke Lapak
+        <i class="fas fa-arrow-left mr-1"></i> Kembali
     </a>
 </div>
 
@@ -427,6 +427,12 @@
                             data-zoom="<?= $produk->zoom ?>" data-title="Lokasi <?= html_escape($produk->pelapak) ?>">
                             <i class="fas fa-map-marker-alt mr-1"></i> Lihat Lokasi
                         </button>
+                        <?php if (! empty($produk->id_pelapak)) : ?>
+                        <a href="<?= site_url('lapak/toko/' . (int) $produk->id_pelapak) ?>"
+                            class="btn btn-secondary text-sm text-center">
+                            <i class="fas fa-store mr-1"></i> Lihat Lapak
+                        </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

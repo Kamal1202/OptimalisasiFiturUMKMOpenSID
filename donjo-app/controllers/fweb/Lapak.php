@@ -19,10 +19,23 @@ class Lapak extends Web_Controller
         $data = $this->includes;
         $this->_get_common_data($data);
 
+        // Ambil kata kunci pencarian
         $data['keyword'] = trim((string) $this->input->get('keyword', true));
-        $data['lapak']   = $this->daftar_lapak_aktif($data['keyword']);
 
-        $data['total_lapak']    = count($data['lapak']);
+        // Ambil semua produk aktif sesuai kata kunci
+        $data['produk'] = $this->lapak_model
+            ->get_produk($data['keyword'], 1)
+            ->order_by('pr.id', 'DESC')
+            ->get()
+            ->result();
+
+        // Ambil kategori untuk filter
+        $data['kategori'] = $this->lapak_model
+            ->get_kategori('', 1)
+            ->get()
+            ->result();
+
+        $data['total_produk'] = count($data['produk']);
         $data['halaman_statis'] = 'lapak/index';
 
         $this->set_template('layouts/halaman_statis_lebar.tpl.php');

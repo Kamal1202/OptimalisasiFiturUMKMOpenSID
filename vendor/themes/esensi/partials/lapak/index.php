@@ -322,7 +322,83 @@
         flex: 1;
     }
 }
+
+/* Area tombol produk - berlaku untuk semua ukuran layar */
+.lapak-public .lapak-product-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.lapak-public .lapak-product-actions .btn-product {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 8px;
+    border: 1px solid #078da5;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none !important;
+    white-space: normal;
+    box-sizing: border-box;
+    transition: background-color .2s ease, border-color .2s ease;
+}
+
+/* Tombol Beli Produk */
+.lapak-public .lapak-product-actions .btn-product-buy {
+    background-color: #078da5 !important;
+    border-color: #078da5 !important;
+    color: #fff !important;
+}
+
+.lapak-public .lapak-product-actions .btn-product-buy:hover {
+    background-color: #06758a !important;
+    border-color: #06758a !important;
+    color: #fff !important;
+}
+
+/* Tombol Detail Produk */
+.lapak-public .lapak-product-actions .btn-product-detail {
+    background-color: #fff !important;
+    border-color: #078da5 !important;
+    color: #078da5 !important;
+}
+
+.lapak-public .lapak-product-actions .btn-product-detail:hover {
+    background-color: #eaf8fa !important;
+    border-color: #06758a !important;
+    color: #06758a !important;
+}
+
+.lapak-public .lapak-product-actions .btn-product i {
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+/* Penyesuaian untuk layar sangat kecil */
+@media (max-width: 400px) {
+    .lapak-public .lapak-product-actions {
+        gap: 6px;
+    }
+
+    .lapak-public .lapak-product-actions .btn-product {
+        padding: 9px 5px;
+        font-size: 11px;
+        gap: 4px;
+    }
+}
 </style>
+
+
 
 <div class="lapak-public">
     <div class="lapak-hero">
@@ -331,11 +407,11 @@
                 <i class="fa fa-shopping-bag"></i> Katalog UMKM Desa
             </div>
 
-            <h2>Temukan Lapak dan Produk Warga Desa</h2>
+            <h2>Temukan Produk UMKM Warga Desa</h2>
 
             <p>
-                Jelajahi lapak UMKM warga, lihat produk/menu yang tersedia, lalu hubungi pelapak secara langsung untuk
-                pemesanan.
+                Jelajahi produk unggulan warga desa dan hubungi penjual
+                secara langsung untuk pemesanan.
             </p>
         </div>
     </div>
@@ -343,7 +419,7 @@
     <div class="lapak-toolbar">
         <form method="get" action="<?= site_url('lapak') ?>" class="lapak-search-form">
             <input type="text" name="keyword" class="lapak-search-input" value="<?= html_escape($keyword ?? '') ?>"
-                placeholder="Cari nama lapak, pemilik, telepon, atau deskripsi...">
+                placeholder="Cari nama produk, penjual, atau lapak...">
 
             <div class="lapak-search-actions">
                 <button type="submit" class="btn btn-primary">
@@ -360,64 +436,70 @@
 
         <div class="lapak-summary-row">
             <div class="lapak-summary">
-                Menampilkan <?= (int) ($total_lapak ?? count($lapak ?? [])) ?> lapak aktif.
+                Menampilkan <?= (int) ($total_produk ?? count($produk ?? [])) ?> produk.
             </div>
 
             <div class="lapak-mini-stat">
                 <span class="lapak-mini-badge">
-                    <i class="fa fa-store"></i> Lapak warga
+                    <i class="fa fa-cube"></i> Produk UMKM
                 </span>
                 <span class="lapak-mini-badge">
-                    <i class="fa fa-phone"></i> Hubungi langsung
+                    <i class="fa fa-phone"></i> Hubungi penjual
                 </span>
             </div>
         </div>
     </div>
 
-    <?php if (empty($lapak)) : ?>
+    <?php if (empty($produk)) : ?>
     <div class="empty-state">
-        <strong>Belum ada lapak aktif yang sesuai dengan pencarian.</strong><br>
+        <strong>Belum ada produk yang sesuai dengan pencarian.</strong><br>
         Coba gunakan kata kunci lain atau reset pencarian.
     </div>
     <?php else : ?>
     <div class="lapak-grid">
-        <?php foreach ($lapak as $row) : ?>
+        <?php foreach ($produk as $row) : ?>
         <?php
-            $nama_lapak = trim((string) ($row->nama_lapak ?? ''));
-            $nama_lapak = $nama_lapak !== '' ? $nama_lapak : ($row->nama_pemilik ?? 'Lapak Warga');
+                    $nama_produk = trim((string) ($row->nama ?? 'Produk UMKM'));
+                    $nama_pelapak = trim((string) ($row->pelapak ?? 'Penjual'));
 
-            $deskripsi = trim((string) ($row->deskripsi_lapak ?? ''));
-            $deskripsi = $deskripsi !== '' ? mb_strimwidth($deskripsi, 0, 135, '...') : 'Belum ada deskripsi lapak.';
+                    $deskripsi = trim((string) ($row->deskripsi ?? ''));
+                    $deskripsi = $deskripsi !== ''
+                        ? mb_strimwidth($deskripsi, 0, 110, '...')
+                        : 'Belum ada deskripsi produk.';
 
-            $logo = trim((string) ($row->logo ?? ''));
-            $banner = trim((string) ($row->banner ?? ''));
+                    $foto = json_decode($row->foto ?? '[]');
+                    $foto_utama = is_array($foto) && ! empty($foto[0])
+                        ? $foto[0]
+                        : null;
 
-            $logo_url = $logo !== '' ? base_url('desa/upload/lapak/logo/' . $logo) : '';
-            $banner_url = $banner !== '' ? base_url('desa/upload/lapak/banner/' . $banner) : '';
-        ?>
+                    $foto_path = $foto_utama
+                        ? LOKASI_PRODUK . $foto_utama
+                        : null;
+
+                    $foto_url = $foto_path && is_file($foto_path)
+                        ? base_url($foto_path)
+                        : base_url('assets/images/404-image-not-found.jpg');
+
+                    $harga_potongan = ((int) ($row->tipe_potongan ?? 0) === 1)
+                        ? ((float) $row->harga * ((float) $row->potongan / 100))
+                        : (float) ($row->potongan ?? 0);
+
+                    $harga_akhir = (float) ($row->harga ?? 0) - $harga_potongan;
+                ?>
 
         <div class="lapak-card">
-            <div class="lapak-cover"
-                style="<?= $banner_url !== '' ? "background-image: url('" . html_escape($banner_url) . "');" : '' ?>">
+            <div class="lapak-cover" style="background-image: url('<?= html_escape($foto_url) ?>');">
                 <div class="lapak-cover-overlay"></div>
-
-                <div class="lapak-avatar">
-                    <?php if ($logo_url !== '') : ?>
-                    <img src="<?= $logo_url ?>" alt="<?= html_escape($nama_lapak) ?>">
-                    <?php else : ?>
-                    <i class="fa fa-shopping-bag"></i>
-                    <?php endif; ?>
-                </div>
             </div>
 
             <div class="lapak-card-body">
                 <div class="lapak-name">
-                    <?= html_escape($nama_lapak) ?>
+                    <?= html_escape($nama_produk) ?>
                 </div>
 
                 <div class="lapak-owner">
-                    <i class="fa fa-user"></i>
-                    <?= html_escape($row->nama_pemilik ?: '-') ?>
+                    <i class="fa fa-store"></i>
+                    <?= html_escape($nama_pelapak) ?>
                 </div>
 
                 <div class="lapak-desc">
@@ -426,22 +508,37 @@
 
                 <div class="lapak-meta">
                     <span class="lapak-badge">
-                        <i class="fa fa-cube"></i>
-                        <?= (int) $row->jumlah_produk ?> produk
+                        <i class="fa fa-tag"></i>
+                        <?= rupiah($harga_akhir) ?>
                     </span>
-
-                    <?php if (! empty($row->telepon)) : ?>
-                    <span class="lapak-badge">
-                        <i class="fa fa-phone"></i>
-                        <?= html_escape($row->telepon) ?>
-                    </span>
-                    <?php endif; ?>
                 </div>
 
-                <a href="<?= site_url('lapak/toko/' . (int) $row->id) ?>"
-                    class="btn btn-primary btn-sm btn-block btn-lapak">
-                    Lihat Produk <i class="fa fa-angle-right"></i>
-                </a>
+
+
+                <div class="lapak-product-actions">
+                    <?php if (! empty($row->telepon)) : ?>
+                    <?php
+                        $pesan = strReplaceArrayRecursive(
+                            [
+                                '[nama_produk]' => $nama_produk,
+                                '[link_web]' => base_url('lapak'),
+                                '<br />' => '%0A'
+                            ],
+                            nl2br($this->setting->pesan_singkat_wa)
+                        );
+                    ?>
+                    <a href="https://api.whatsapp.com/send?phone=<?= format_telpon($row->telepon) ?>&amp;text=<?= $pesan ?>"
+                        class="btn-product btn-product-buy" target="_blank" rel="noopener noreferrer">
+                        <i class="fa fa-whatsapp"></i>
+                        <span>Beli Produk</span>
+                    </a>
+                    <?php endif; ?>
+
+                    <a href="<?= site_url('lapak/detail/' . (int) $row->id) ?>" class="btn-product btn-product-detail">
+                        <i class="fa fa-info-circle"></i>
+                        <span>Detail Produk</span>
+                    </a>
+                </div>
             </div>
         </div>
         <?php endforeach; ?>

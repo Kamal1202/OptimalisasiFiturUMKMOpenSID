@@ -361,7 +361,7 @@
 <div class="lapak-toko">
     <div class="toko-topbar">
         <a href="<?= site_url('lapak') ?>" class="btn btn-default btn-sm">
-            <i class="fa fa-arrow-left"></i> Kembali ke Daftar Lapak
+            <i class="fa fa-arrow-left"></i> Kembali ke Katalog Produk
         </a>
     </div>
 
